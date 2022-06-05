@@ -2,10 +2,12 @@
 #include "opencv2/highgui/highgui.hpp"
 #include <iostream>
 #include <math.h>
-#include <ctime>
 #include "utils.h"
+#include<stack>
 
 using namespace std;
+
+std::vector<std::vector<pair<int,int> > > getField(cv::Mat& photo);
 
 /*** Color ranges ***/
 pair yellow1(17,45), yellow2(90,256), yellow3(90,256);
@@ -80,15 +82,87 @@ int main(int, char* []) {
         cv::imshow("mask", ym);
         cv::waitKey(0);
 
+        /** Mask fields **/
 
+        auto bfield = getField(bm);
+        auto yfield = getField(ym);
+        auto r1field = getField(r1m);
+        auto r2field = getField(r2m);
 
-
-
-
-
-
+        // Sort the segments
 
 
     }   
+}
+
+std::vector<std::vector<pair<int,int> > > getField(cv::Mat& photo)
+{
+    // We need a list of fields which is a list of single pixels
+
+    cv::Mat seen(photo.rows, photo.cols, CV_8U); //8 bits per pixel - 255 values
+    cv::Mat_<uchar> _S = seen;
+    cv::Mat_<uchar> _P = photo;
+
+    int height = photo.rows;
+    int width = photo.cols;
+
+    for (int x = 0; x < width; x++) 
+    { // For every column...
+		for (int y = 0; y < height; y++) 
+        { // ...iterate through every row
+            _S(y,x) = 0; 
+        }
+    }
+
+    std::vector<std::vector<pair<int,int> > > result;
+
+    for (int x = 0; x < photo.cols; x++) 
+    { // For every column...
+		for (int y = 0; y < photo.rows; y++) 
+        { // ...iterate through every row
+            if(_P(y,x) == 0)  // It is not a part of mask
+                continue;
+
+            std::vector<pair<int,int> > field;
+            std::stack<pair<int,int> > fieldIterator;
+            fieldIterator.push(pair(y,x));
+            pair<int,int> singlePixel;
+
+            while(true)
+            {
+                singlePixel = fieldIterator.top();
+                fieldIterator.pop();
+
+                if(_P(singlePixel.first, singlePixel.second) == 255 &&
+                  _S(singlePixel.first, singlePixel.second) != 1)
+                {
+                    field.push_back(singlePixel);
+                    _S(singlePixel.first, singlePixel.second) = 1;
+
+                    // Check every single pixel around
+
+                    if(singlePixel.first + 1 < height)
+                        fieldIterator.push(pair(singlePixel.first + 1, singlePixel.second));
+                    if(singlePixel.first - 1 >= 0)
+                        fieldIterator.push(pair(singlePixel.first - 1, singlePixel.second));
+                    if(singlePixel.second + 1 < width)
+                        fieldIterator.push(pair(singlePixel.first, singlePixel.second + 1));
+                    if(singlePixel.second - 1 >= 0)
+                        fieldIterator.push(pair(singlePixel.first, singlePixel.second - 1));
+
+
+                }
+            }
+            result.push_back(field);
+        }
+
+        return result;  
+
+
+    }
+
+    
+
+
 }
 

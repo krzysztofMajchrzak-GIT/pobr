@@ -1,6 +1,8 @@
 #include "utils.h"
 #include <iostream>
+#include <vector>
 using namespace std;
+
 
 cv::Mat unsharp(cv::Mat& photo)
 {
@@ -242,3 +244,5 @@ cv::Mat erosion(cv::Mat& photo)
     return result;
 
 }
+
+
