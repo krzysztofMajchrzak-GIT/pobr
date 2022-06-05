@@ -58,11 +58,25 @@ int main(int, char* []) {
         /*** Logo segmentation ***/
 
         cout << "Starting logo segmentation" << endl;
+        
+        /** Erosion and dilation filters **/
 
         cv::Mat ym = masking(photo, yellow1, yellow2, yellow3);
-        ym = erosionFilter(ym, 3);
-        ym = dilatationFilter(ym, 3);
+        ym = erosion(ym);
+        ym = dilation(ym);
 
+        cv::Mat bm = masking(photo, blue1, blue2, blue3);
+        bm = erosion(bm);
+        bm = dilation(bm);
+
+        cv::Mat r1m = masking(photo, red_c1, red_c2, red_c3);
+        r1m = erosion(r1m);
+        r1m = dilation(r1m);
+
+        cv::Mat r2m = masking(photo, red_i1, red_i2, red_i3);
+        r2m = erosion(r1m);
+        r2m = dilation(r1m);
+    
         cv::imshow("mask", ym);
         cv::waitKey(0);
 

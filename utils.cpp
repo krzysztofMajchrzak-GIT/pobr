@@ -4,6 +4,8 @@ using namespace std;
 
 cv::Mat unsharp(cv::Mat& photo)
 {
+    int padding = 1;
+
 	int sharpenFilter[3][3] = {
 		{0,-1,0},
 		{-1,5,-1},
@@ -12,7 +14,7 @@ cv::Mat unsharp(cv::Mat& photo)
 
 	cv::Mat result = photo.clone();
 
-    for (int x = 1; x < photo.cols - 1; x++) 
+    for (int x = padding; x < photo.cols - padding; x++) 
     { // For every column...
 		for (int y = 1; y < photo.rows - 1; y++) 
         { // ...iterate through every row
@@ -58,6 +60,7 @@ cv::Mat unsharp(cv::Mat& photo)
 
 cv::Mat bgr2hsv(cv::Mat& photo)
 {
+    int padding = 1;
     cv::Mat result(photo.rows, photo.cols, CV_8UC3);
 
     //cv::Mat_<cv::Vec3b> _I = photo;
@@ -70,9 +73,9 @@ cv::Mat bgr2hsv(cv::Mat& photo)
     
 
 
-    for (int x = 1; x < photo.cols - 1; x++) 
+    for (int x = padding; x < photo.cols - padding; x++) 
     { // For every column...
-		for (int y = 1; y < photo.rows - 1; y++) 
+		for (int y = padding; y < photo.rows - padding; y++) 
         { // ...iterate through every row
             // R, G, B values are divided by 255
             // to change the range from 0..255 to 0..1:
@@ -127,6 +130,7 @@ cv::Mat bgr2hsv(cv::Mat& photo)
 
 cv::Mat equlize(cv::Mat& photo)
 {
+    int padding = 1;
     int resolution = photo.rows * photo.cols;
     int sum = 0;
 
@@ -135,9 +139,9 @@ cv::Mat equlize(cv::Mat& photo)
 
     cv::Mat result = photo.clone();
 
-    for (int x = 1; x < photo.cols - 1; x++) 
+    for (int x = padding; x < photo.cols - padding; x++) 
     { // For every column...
-		for (int y = 1; y < photo.rows - 1; y++) 
+		for (int y = padding; y < photo.rows - padding; y++) 
         { // ...iterate through every row
 
             int v = photo.at<cv::Vec3b>(y, x)[2];
@@ -151,7 +155,7 @@ cv::Mat equlize(cv::Mat& photo)
         lut[i] = sum * 255 / resolution;
     }
 
-    for (int x = 1; x < photo.cols - 1; x++) 
+    for (int x = padding; x < photo.cols - padding; x++) 
     { // For every column...
 		for (int y = 1; y < photo.rows - 1; y++) 
         { // ...iterate through every row
@@ -167,12 +171,13 @@ cv::Mat equlize(cv::Mat& photo)
 
 cv::Mat masking(cv::Mat& photo, std::pair<int,int>& c1, std::pair<int,int>& c2, std::pair<int,int>& c3)
 {
+    int padding = 1;
     cv::Mat_<uchar> _R(photo.rows, photo.cols);
     //cv::Mat_<cv::Vec3b> _I = photo;
 
-    for (int x = 1; x < photo.cols - 1; x++) 
+    for (int x = padding; x < photo.cols - padding; x++) 
     { // For every column...
-		for (int y = 1; y < photo.rows - 1; y++) 
+		for (int y = padding; y < photo.rows - padding; y++) 
         { // ...iterate through every row
             if(c1.first <= photo.at<cv::Vec3b>(y, x)[0] && c1.second > photo.at<cv::Vec3b>(y, x)[0]
             && c2.first <= photo.at<cv::Vec3b>(y, x)[1] && c2.second > photo.at<cv::Vec3b>(y, x)[1] 
@@ -187,38 +192,53 @@ cv::Mat masking(cv::Mat& photo, std::pair<int,int>& c1, std::pair<int,int>& c2, 
     return _R;
 }
 
-cv::Mat dilatationFilter(cv::Mat& image, int N)
+cv::Mat dilation(cv::Mat& photo)
 {
-	int p = N / 2;
-	cv::Mat imageResult = image.clone();
-	for (int x = p; x < image.cols - p; x++) {
-		for (int y = p; y < image.rows - p; y++) {
-			uchar newVal = image.at<uchar>(y, x);
-			for (int i = -p; i <= p; i++) {
-				for (int j = -p; j <= p; j++) {
-					newVal = std::max(newVal, image.at<uchar>(y - i, x - j));
-				}
-			}
-			imageResult.at<uchar>(y, x) = newVal;
-		}
-	}
-	return imageResult;
-}
+    int padding = 1;
+    cv::Mat result = photo.clone();
 
-cv::Mat erosionFilter(cv::Mat& image, int N)
+    for (int x = padding; x < photo.cols - padding; x++) 
+    { // For every column...
+		for (int y = padding; y < photo.rows - padding; y++) 
+        { // ...iterate through every row
+
+            uchar resultPixel = photo.at<uchar>(y, x);
+            
+            for (int i = -padding; i <= padding; i++)
+            {
+                for (int j = -padding; j <= padding; j++)
+                { // Checking every pixel around the given one
+                    resultPixel = std::max(photo.at<uchar>(y-i, x-j), resultPixel);
+                }
+            }
+            result.at<uchar>(y, x) = resultPixel; // assigning pixel
+        }
+    }
+    return result;
+
+}
+cv::Mat erosion(cv::Mat& photo)
 {
-	int p = N / 2;
-	cv::Mat imageResult = image.clone();
-	for (int x = p; x < image.cols - p; x++) {
-		for (int y = p; y < image.rows - p; y++) {
-			uchar newVal = image.at<uchar>(y, x);
-			for (int i = -p; i <= p; i++) {
-				for (int j = -p; j <= p; j++) {
-					newVal = std::min(newVal, image.at<uchar>(y - i, x - j));
-				}
-			}
-			imageResult.at<uchar>(y, x) = newVal;
-		}
-	}
-	return imageResult;
+    int padding = 1;
+    cv::Mat result = photo.clone();
+
+    for (int x = padding; x < photo.cols - padding; x++) 
+    { // For every column...
+		for (int y = padding; y < photo.rows - padding; y++) 
+        { // ...iterate through every row
+
+            uchar resultPixel = photo.at<uchar>(y, x);
+            
+            for (int i = -padding; i <= padding; i++)
+            {
+                for (int j = -padding; j <= padding; j++)
+                { // Checking every pixel around the given one
+                    resultPixel = std::min(photo.at<uchar>(y-i, x-j), resultPixel);
+                }
+            }
+            result.at<uchar>(y, x) = resultPixel; // assigning pixel
+        }
+    }
+    return result;
+
 }
