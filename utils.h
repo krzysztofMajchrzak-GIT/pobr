@@ -7,3 +7,4 @@
 
 cv::Mat unsharp(cv::Mat& photo);
 cv::Mat bgr2hsv(cv::Mat& photo);
+cv::Mat equlize(cv::Mat& photo);
