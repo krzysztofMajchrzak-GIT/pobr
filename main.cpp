@@ -35,38 +35,42 @@ int main(int, char* []) {
                 
         }
 
-        /*** Image enhancement ***/
+        /*** Image correction ***/
         
         cout << "Starting image correction" << endl;
         
         /** Image sharpening using unsharp mask F(x,y) = f(x,y)+k*( f(x,y)-Fblur(x,y) ) **/
 
         cv::Mat unsharpedImage = unsharp(photo);
-        cv::imshow("original", photo);
-        cv::imshow("bluredImage", unsharpedImage);
-        //cv::waitKey(0);
 
-        /*** Convertion from BGR to HSV ***/
+        /** Convertion from BGR to HSV **/
 
         cout << "Starting BGR to HSV convertion" << endl;
 
         cv::Mat hsv = bgr2hsv(unsharpedImage);
 
-        cv::imshow("hsv", hsv);
-
-        /*** Histogram equlization on HSV image for contrast enhancement ***/
+        /** Histogram equlization on HSV image for contrast enhancement **/
 
         cout << "Starting equlization on HSV image" << endl;
 
         cv::Mat equlized = equlize(hsv); 
 
-        cv::imshow("equlized", equlized);
+        /*** Logo segmentation ***/
 
-        cv::Mat equlized2 = equalizeHistogramHSV(hsv);
+        cout << "Starting logo segmentation" << endl;
 
-        cv::imshow("equlized2", equlized2);
+        cv::Mat ym = masking(photo, yellow1, yellow2, yellow3);
+        ym = erosionFilter(ym, 3);
+        ym = dilatationFilter(ym, 3);
 
+        cv::imshow("mask", ym);
         cv::waitKey(0);
+
+
+
+
+
+
 
 
 
