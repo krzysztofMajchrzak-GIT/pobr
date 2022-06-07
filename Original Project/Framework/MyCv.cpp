@@ -133,7 +133,7 @@ cv::Mat MyCV::getMaskFrom3D(cv::Mat &image, std::pair<int, int> &r1, std::pair<i
 	{
 		for (auto y = 0; y < image.rows; y++)
 		{
-			_R(y, x) = (r1.start <= _I(y, x)[0] && r1.end > _I(y, x)[0]) && (r2.start <= _I(y, x)[1] && r2.end > _I(y, x)[1]) && (r3.start <= _I(y, x)[2] && r3.end > _I(y, x)[2]) ? 255 : 0;
+			_R(y, x) = (r1.first <= _I(y, x)[0] && r1.second > _I(y, x)[0]) && (r2.first <= _I(y, x)[1] && r2.second > _I(y, x)[1]) && (r3.first <= _I(y, x)[2] && r3.second > _I(y, x)[2]) ? 255 : 0;
 		}
 	}
 	return _R;

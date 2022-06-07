@@ -204,7 +204,6 @@ int main(int, char *[])
 				image = MyCV::drawBoundingBox(image, s1.Circle.value().boundigBox);
 				logosCount++;
 			} });
-		println("[DONE] Processing time: " + std::to_string(elapsed_secs) + "s");
 		println("Logos found: " + std::to_string(logosCount));
 		cv::imshow("Result Image", image);
 		cv::imwrite("resultImage.png", image);
