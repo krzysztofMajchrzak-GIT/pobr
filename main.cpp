@@ -2,14 +2,16 @@
 #include "opencv2/highgui/highgui.hpp"
 #include <iostream>
 #include <math.h>
-#include "utils.h"
 #include <stack>
-#include "intervariants.h"
+
+#include "PotentialHit.h"
+#include "utils.h"
 
 using namespace std;
 
 std::vector<std::vector<pair<int, int>>> getField(cv::Mat &photo);
 void sortField(std::vector<std::vector<pair<int, int>>> &field);
+cv::Mat drawBoundingBox(cv::Mat &matrix, BoundingBox box);
 
 /*** Color ranges ***/
 pair yellow1(17, 45), yellow2(90, 256), yellow3(90, 256);
@@ -75,12 +77,11 @@ int main(int, char *[])
         bm = dilation(bm);
 
         cv::Mat r1m = masking(photo, red_c1, red_c2, red_c3);
-        r1m = erosion(r1m);
-        r1m = dilation(r1m);
-
         cv::Mat r2m = masking(photo, red_i1, red_i2, red_i3);
-        r2m = erosion(r1m);
-        r2m = dilation(r1m);
+        cv::Mat rm = bitwiseOr(r1m,r2m);
+
+        rm = erosion(rm);
+        rm = dilation(rm);
 
         cv::imshow("mask", ym);
         cv::waitKey(0);
@@ -89,15 +90,15 @@ int main(int, char *[])
 
         auto bfield = getField(bm);
         auto yfield = getField(ym);
-        auto r1field = getField(r1m);
-        auto r2field = getField(r2m);
+        auto rfield = getField(rm);
+        // auto r2field = getField(r2m);
 
         /** Sort the segments **/
 
         sortField(bfield);
         sortField(yfield);
-        sortField(r1field);
-        sortField(r2field);
+        sortField(rfield);
+        // sortField(r2field);
 
         /** Searching for letters **/
 
@@ -107,7 +108,7 @@ int main(int, char *[])
         {
             if (yfield[i].size() > minValidFieldSize) // Minimum threshold
             {
-                FieldInvariants fi(yfield[i]); // Calculating Invariants 
+                FieldInvariants fi(yfield[i]); // Calculating Invariants
                 if (fi.findCircle())
                 {
                     PotentialHit ph;
@@ -128,12 +129,12 @@ int main(int, char *[])
                 if (bfield[j].size() > minValidFieldSize)
                 {
                     FieldInvariants fi(bfield[j]);
-                    if (hit.background.isGravityCenterInsideBB(fi))
+                    if (hit.background.value().isgcInBB(fi))
                     {
-                        if (fi.findD()())
-                            fieldsWithThird.push_back();
-                        if (fi.findL()())
-                            fieldsWithOutlying.push_back();
+                        if (fi.findD())
+                            fieldsWithThird.push_back(fi);
+                        if (fi.findL())
+                            fieldsWithOutlying.push_back(fi);
                     }
                 }
             }
@@ -144,35 +145,35 @@ int main(int, char *[])
             for (int j = 0; j < 2; j++)
                 std::copy(fieldsWithOutlying[j].field.begin(), fieldsWithOutlying[j].field.end(), std::back_inserter(outlyingField));
             FieldInvariants outlyingInvariants(outlyingField);
-            auto separation = fieldsWithOutlying[0].getDistanceToCenter(fieldsWithOutlying[1]);
-            auto widthRatio = separation / outlyingInvariants.boundigBox.getWidth();
+            auto separation = fieldsWithOutlying[0].rToCenter(fieldsWithOutlying[1]);
+            auto widthRatio = separation / outlyingInvariants.boundigBox.width();
             if (0.7 <= widthRatio && widthRatio <= 0.85)
             {
-                std::vector<FieldInvariant> copy;
+                std::vector<FieldInvariants> copy;
                 std::copy(fieldsWithOutlying.begin(), fieldsWithOutlying.end(), std::back_inserter(copy));
                 hit.outlyingLetters = copy;
             }
 
             if (fieldsWithThird.size() != 1)
                 break;
-            if (hit.Circle.isGravityCenterInsideBB(fieldsWithThird[0]))
+            if (hit.background.value().isgcInBB(fieldsWithThird[0]))
             {
-                FieldInvariant thirdLetter(fieldsWithThird[0].field);
+                FieldInvariants thirdLetter(fieldsWithThird[0].field);
                 hit.thirdLetter = thirdLetter;
             }
 
-            std::vector<FieldInvariant> secondLetterBottom;
-            std::vector<FieldInvariant> secondLetterTop;
-            for (int j = 0; j < r1field.size(); j++)
+            std::vector<FieldInvariants> secondLetterBottom;
+            std::vector<FieldInvariants> secondLetterTop;
+            for (int j = 0; j < rfield.size(); j++)
             {
-                if (s1.size() > minValidFieldSize)
+                if (rfield[j].size() > minValidFieldSize)
                 {
-                    FieldInvariant fi(s1);
-                    if (bg.Circle.isGravityCenterInsideBB(fi))
+                    FieldInvariants fi(rfield[j]);
+                    if (hit.background.value().isgcInBB(fi))
                     {
-                        if (fi.isLetterI() && outlyingInvariants.isGravityCenterInsideBB(fi))
+                        if (fi.findI() && outlyingInvariants.isgcInBB(fi))
                             secondLetterBottom.push_back(fi);
-                        if (fi.isRedDot())
+                        if (fi.findDot())
                             secondLetterTop.push_back(fi);
                     }
                 }
@@ -181,9 +182,9 @@ int main(int, char *[])
             std::vector<pair<int, int>> secondLetterField;
             std::copy(secondLetterBottom[0].field.begin(), secondLetterBottom[0].field.end(), std::back_inserter(secondLetterField));
             std::copy(secondLetterTop[0].field.begin(), secondLetterTop[0].field.end(), std::back_inserter(secondLetterField));
-            MyCV::SegmentInfo secondLetterFull(secondLetterField);
-            separation = secondLetterBottom[0].getDistanceToCenter(secondLetterTop[0]);
-            auto heightRatio = separation / secondLetterFull.boundigBox.getHeight();
+            FieldInvariants secondLetterFull(secondLetterField);
+            separation = secondLetterBottom[0].rToCenter(secondLetterTop[0]);
+            auto heightRatio = separation / secondLetterFull.boundigBox.height();
             if (heightRatio >= 0.43 && heightRatio <= 0.6)
             {
                 hit.secondLetterBottom = secondLetterBottom[0];
@@ -191,6 +192,19 @@ int main(int, char *[])
             }
             hits[i] = hit;
         }
+
+        int hitCount = 0;
+        for (int j = 0; j < hits.size(); j++)
+        {
+            if (hits[j].checkHit())
+            {
+                photo = drawBoundingBox(photo, hits[j].background.value().boundigBox);
+                hitCount++;
+            }
+        }
+        cv::imshow("Result Image", photo);
+        cv::imwrite("resultImage.png", photo);
+        cv::waitKey(-1);
     }
 }
 
@@ -261,4 +275,69 @@ void sortField(std::vector<std::vector<pair<int, int>>> &field)
 {
     std::sort(field.begin(), field.end(), [](std::vector<pair<int, int>> &v1, std::vector<pair<int, int>> &v2) -> bool
               { return v1.size() < v2.size(); });
+}
+
+cv::Mat drawBoundingBox(cv::Mat &matrix, BoundingBox box)
+{
+    const int borderThickness = 1;
+    auto matrixClone = matrix.clone();
+    cv::Mat_<cv::Vec3b> _R = matrixClone;
+
+    for (int i = box.x_m; i < box.x_mx; i++)
+    {
+
+        for (int j = -borderThickness; j <= borderThickness; j++)
+        {
+            int y_m = box.y_m + j;
+            int y_mx = box.y_mx + j;
+
+            if (y_m >= 0 && y_m < matrixClone.rows)
+            {
+                _R(y_m, i)
+                [0] = 0;
+                _R(y_m, i)
+                [1] = 255;
+                _R(y_m, i)
+                [2] = 0;
+            }
+            if (y_mx >= 0 && y_mx < matrixClone.rows)
+            {
+                _R(y_mx, i)
+                [0] = 0;
+                _R(y_mx, i)
+                [1] = 255;
+                _R(y_mx, i)
+                [2] = 0;
+            }
+        }
+    }
+
+    for (int i = box.y_m; i < box.y_mx; i++)
+    {
+        for (int j = -borderThickness; j <= borderThickness; j++)
+        {
+            int x_m = box.x_m + j;
+            int x_mx = box.x_mx + j;
+
+            if (x_m >= 0 && x_m < matrixClone.cols)
+            {
+                _R(i, x_m)
+                [0] = 0;
+                _R(i, x_m)
+                [1] = 255;
+                _R(i, x_m)
+                [2] = 0;
+            }
+            if (x_mx >= 0 && x_mx < matrixClone.cols)
+            {
+                _R(i, x_mx)
+                [0] = 0;
+                _R(i, x_mx)
+                [1] = 255;
+                _R(i, x_mx)
+                [2] = 0;
+            }
+        }
+    }
+    return matrixClone;
 }

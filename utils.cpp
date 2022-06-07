@@ -130,6 +130,21 @@ cv::Mat bgr2hsv(cv::Mat& photo)
     return result;
 }
 
+cv::Mat bitwiseOr(cv::Mat& image, cv::Mat& image2)
+{
+	cv::Mat_<uchar> _R(image.rows, image.cols);
+	cv::Mat_<uchar> _I1 = image;
+	cv::Mat_<uchar> _I2 = image2;
+
+	for (auto x = 0; x < image.cols; x++) {
+		for (auto y = 0; y < image.rows; y++) {
+			_R(y, x) = _I1(y, x) | _I2(y, x);
+		}
+	}
+
+	return _R;
+}
+
 cv::Mat equlize(cv::Mat& photo)
 {
     int padding = 1;
