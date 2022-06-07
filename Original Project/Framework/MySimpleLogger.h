@@ -1,7 +1,7 @@
-#pragma once
-#include <iostream>
+// #pragma once
+// #include <iostream>
 
-namespace sl
-{
-	void println(std::string text);
-}
+// namespace sl
+// {
+// 	void println(std::string text);
+// }
