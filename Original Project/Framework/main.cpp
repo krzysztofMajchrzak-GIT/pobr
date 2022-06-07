@@ -8,7 +8,7 @@
 #include "Logo.h"
 #include <ctime>
 
-using namespace sl;
+void println(std::string text);
 
 int main(int, char *[])
 {
@@ -18,7 +18,7 @@ int main(int, char *[])
 		std::string image_path = "";
 		cv::Mat image;
 
-		do
+		while (true)
 		{
 			println("Provide image name...");
 			std::cin >> image_path;
@@ -28,26 +28,22 @@ int main(int, char *[])
 				break;
 			}
 			println("Could not open or find the image. Try again...");
-		} while (true);
+		}
 
 		println("Image " + image_path + " successful read!");
 		println("Start proccesing...");
 
-		clock_t begin = clock();
-		println("Image enchancement...");
-
-		// Blurr nd Unsharp
-		cv::Mat bluerdImage = MyCV::blurFilter(image, 3);
-		cv::Mat unsharp = MyCV::unsharpMask(bluerdImage);
+		// Blurr and Unsharp
+		cv::Mat blurredImage = MyCV::blurFilter(image, 3);
+		cv::Mat unsharp = MyCV::unsharpMask(blurredImage);
 
 		cv::Mat image2 = MyCV::convertBGR2HSV(unsharp);
 		MyCV::equalizeHistogramHSV(image2);
 
-		// cv::imshow("un", unsharp);
-		cv::imshow("bluredImage", bluerdImage);
+		cv::imshow("blurredImage", blurredImage);
 
 		// Yellow
-		MyCV::Range y1(17, 45);
+		MyCV::Range yellow1(17, 45);
 		MyCV::Range y2(90, 256);
 		MyCV::Range y3(90, 256);
 
@@ -64,6 +60,12 @@ int main(int, char *[])
 		MyCV::Range r4(165, 181);
 		MyCV::Range r5(0, 256);
 		MyCV::Range r6(0, 256);
+		
+		/*** Color ranges ***/
+		pair yellow1(17, 45), yellow2(90, 256), yellow3(90, 256);
+		pair blue1(95, 145), blue2(45, 256), blue3(0, 256);
+		pair red_i1(0, 14), red_i2(0, 256), red_i3(0, 256);
+		pair red_c1(165, 181), red_c2(0, 256), red_c3(0, 256);
 
 		println("Segmentation....");
 		// cv::Mat mask = MyCV::getMaskFrom3D(image2, b1, b2, b3);
@@ -73,12 +75,9 @@ int main(int, char *[])
 		blueMask = MyCV::dilationFilter(blueMask, 3);
 		cv::imshow("BLuemask", blueMask);
 
-		cv::Mat yellowMask = MyCV::getMaskFrom3D(image2, y1, y2, y3);
-		// yellowMask = MyCV::erosionFilter(yellowMask, 3);
-		// yellowMask = MyCV::dilationFilter(yellowMask, 3);
-		// cv::imshow("yelmask", yellowMask);
-		cv::Mat redLowMask = MyCV::getMaskFrom3D(image2, r1, r2, r3);
-		cv::Mat redUpMask = MyCV::getMaskFrom3D(image2, r4, r5, r6);
+		cv::Mat yellowMask = MyCV::getMaskFrom3D(image2, yellow1, yellow2, yellow3);
+		cv::Mat redLowMask = MyCV::getMaskFrom3D(image2, red_i1, red_i2, red_i3);
+		cv::Mat redUpMask = MyCV::getMaskFrom3D(image2, red_c4, red_c5, red_c6);
 		cv::Mat redMask = MyCV::bitwiseOr(redLowMask, redUpMask);
 		redMask = MyCV::erosionFilter(redMask, 3);
 		redMask = MyCV::dilationFilter(redMask, 3);
@@ -219,8 +218,6 @@ int main(int, char *[])
 				image = MyCV::drawBoundingBox(image, s1.Circle.value().boundigBox);
 				logosCount++;
 			} });
-		clock_t end = clock();
-		double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 		println("[DONE] Processing time: " + std::to_string(elapsed_secs) + "s");
 		println("Logos found: " + std::to_string(logosCount));
 		cv::imshow("Result Image", image);
@@ -237,3 +234,5 @@ int main(int, char *[])
 	} while (true);
 	return 0;
 }
+
+void sl::println(std::string text) { std::cout << "> " + text << std::endl; }
