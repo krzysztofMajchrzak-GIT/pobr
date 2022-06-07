@@ -60,7 +60,7 @@ int main(int, char *[])
 
 		cv::Mat yellowMask = MyCV::getMaskFrom3D(image2, yellow1, yellow2, yellow3);
 		cv::Mat redLowMask = MyCV::getMaskFrom3D(image2, red_i1, red_i2, red_i3);
-		cv::Mat redUpMask = MyCV::getMaskFrom3D(image2, red_c4, red_c5, red_c6);
+		cv::Mat redUpMask = MyCV::getMaskFrom3D(image2, red_c1, red_c2, red_c3);
 		cv::Mat redMask = MyCV::bitwiseOr(redLowMask, redUpMask);
 		redMask = MyCV::erosionFilter(redMask, 3);
 		redMask = MyCV::dilationFilter(redMask, 3);
