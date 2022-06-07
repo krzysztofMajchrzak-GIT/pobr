@@ -10,7 +10,7 @@ namespace MyCV
 
 	cv::Mat drawBoundingBox(cv::Mat &image, BoundingBox BoundingBox);
 	cv::Mat convertBGR2HSV(cv::Mat &image);
-	cv::Mat getMaskFrom3D(cv::Mat &image, Range &r1, Range &r2, Range &r3);
+	cv::Mat getMaskFrom3D(cv::Mat &image, std::pair<int, int> &r1, std::pair<int, int> &r2, std::pair<int, int> &r3);
 	std::vector<Segment> getSegemntsFromMask(cv::Mat &mask);
 	cv::Mat bitwiseOr(cv::Mat &image, cv::Mat &image2);
 	cv::Mat dilationFilter(cv::Mat &image, int N);

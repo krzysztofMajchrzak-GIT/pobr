@@ -46,10 +46,10 @@ int main(int, char *[])
 		// cv::imshow("blurredImage", blurredImage);
 
 		/*** Color ranges ***/
-		pair yellow1(17, 45), yellow2(90, 256), yellow3(90, 256);
-		pair blue1(95, 145), blue2(45, 256), blue3(0, 256);
-		pair red_i1(0, 14), red_i2(0, 256), red_i3(0, 256);
-		pair red_c1(165, 181), red_c2(0, 256), red_c3(0, 256);
+		std::pair<int, int> yellow1(17, 45), yellow2(90, 256), yellow3(90, 256);
+		std::pair<int, int> blue1(95, 145), blue2(45, 256), blue3(0, 256);
+		std::pair<int, int> red_i1(0, 14), red_i2(0, 256), red_i3(0, 256);
+		std::pair<int, int> red_c1(165, 181), red_c2(0, 256), red_c3(0, 256);
 
 		println("Segmentation....");
 

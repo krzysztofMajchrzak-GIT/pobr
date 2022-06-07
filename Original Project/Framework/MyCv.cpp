@@ -124,7 +124,7 @@ cv::Mat MyCV::convertBGR2HSV(cv::Mat &image)
 	return HSVimage;
 }
 
-cv::Mat MyCV::getMaskFrom3D(cv::Mat &image, Range &r1, Range &r2, Range &r3)
+cv::Mat MyCV::getMaskFrom3D(cv::Mat &image, std::pair<int, int> &r1, std::pair<int, int> &r2, std::pair<int, int> &r3)
 {
 	cv::Mat_<uchar> _R(image.rows, image.cols);
 	cv::Mat_<cv::Vec3b> _I = image;
