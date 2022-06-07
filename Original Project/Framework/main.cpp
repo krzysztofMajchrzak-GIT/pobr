@@ -220,7 +220,7 @@ int main(int, char *[])
 	return 0;
 }
 
-void sl::println(std::string text) { std::cout << "> " + text << std::endl; }
+void println(std::string text) { std::cout << "> " + text << std::endl; }
 
 void sortField(std::vector<std::vector<pair<int, int>>> &field)
 {
