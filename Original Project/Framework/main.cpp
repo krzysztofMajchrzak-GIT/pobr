@@ -8,6 +8,8 @@
 #include "Logo.h"
 #include <ctime>
 
+using namespace std;
+
 void println(std::string text);
 void sortField(std::vector<std::vector<pair<int, int>>> &field);
 
