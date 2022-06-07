@@ -83,7 +83,11 @@ int main(int, char *[])
         rm = erosion(rm);
         rm = dilation(rm);
 
-        cv::imshow("mask", ym);
+        cv::imshow("blurredImage", unsharpedImage);
+        cv::imshow("convertedImage", hsv);
+        cv::imshow("ymask", ym);
+        cv::imshow("rmask", rm);
+        cv::imshow("bmask", bm);
         cv::waitKey(0);
 
         /** Mask fields **/
