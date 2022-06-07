@@ -9,6 +9,7 @@
 #include <ctime>
 
 void println(std::string text);
+void sortField(std::vector<std::vector<pair<int, int>>> &field);
 
 int main(int, char *[])
 {
@@ -40,27 +41,8 @@ int main(int, char *[])
 		cv::Mat image2 = MyCV::convertBGR2HSV(unsharp);
 		MyCV::equalizeHistogramHSV(image2);
 
-		cv::imshow("blurredImage", blurredImage);
+		// cv::imshow("blurredImage", blurredImage);
 
-		// Yellow
-		MyCV::Range yellow1(17, 45);
-		MyCV::Range y2(90, 256);
-		MyCV::Range y3(90, 256);
-
-		// Blue
-		MyCV::Range b1(95, 145);
-		MyCV::Range b2(45, 256);
-		MyCV::Range b3(0, 256);
-
-		// Red low
-		MyCV::Range r1(0, 14);
-		MyCV::Range r2(0, 256);
-		MyCV::Range r3(0, 256);
-		// Red up
-		MyCV::Range r4(165, 181);
-		MyCV::Range r5(0, 256);
-		MyCV::Range r6(0, 256);
-		
 		/*** Color ranges ***/
 		pair yellow1(17, 45), yellow2(90, 256), yellow3(90, 256);
 		pair blue1(95, 145), blue2(45, 256), blue3(0, 256);
@@ -68,12 +50,11 @@ int main(int, char *[])
 		pair red_c1(165, 181), red_c2(0, 256), red_c3(0, 256);
 
 		println("Segmentation....");
-		// cv::Mat mask = MyCV::getMaskFrom3D(image2, b1, b2, b3);
 
 		cv::Mat blueMask = MyCV::getMaskFrom3D(image2, b1, b2, b3);
 		blueMask = MyCV::erosionFilter(blueMask, 3);
 		blueMask = MyCV::dilationFilter(blueMask, 3);
-		cv::imshow("BLuemask", blueMask);
+		// cv::imshow("BLuemask", blueMask);
 
 		cv::Mat yellowMask = MyCV::getMaskFrom3D(image2, yellow1, yellow2, yellow3);
 		cv::Mat redLowMask = MyCV::getMaskFrom3D(image2, red_i1, red_i2, red_i3);
@@ -87,14 +68,17 @@ int main(int, char *[])
 		auto yellowSegments = MyCV::getSegemntsFromMask(yellowMask);
 		auto redSegments = MyCV::getSegemntsFromMask(redMask);
 
-		std::sort(blueSegments.begin(), blueSegments.end(), [](MyCV::Segment &s1, MyCV::Segment &s2) -> bool
-				  { return s1.size() < s2.size(); });
-
-		std::sort(yellowSegments.begin(), yellowSegments.end(), [](MyCV::Segment &s1, MyCV::Segment &s2) -> bool
-				  { return s1.size() < s2.size(); });
-
-		std::sort(redSegments.begin(), redSegments.end(), [](MyCV::Segment &s1, MyCV::Segment &s2) -> bool
-				  { return s1.size() < s2.size(); });
+		sortField(blueSegments);
+		sortField(yellowSegments);
+		sortField(redSegments);
+		// std::sort(blueSegments.begin(), blueSegments.end(), [](MyCV::Segment &s1, MyCV::Segment &s2) -> bool
+				//   { return s1.size() < s2.size(); });
+// 
+		// std::sort(yellowSegments.begin(), yellowSegments.end(), [](MyCV::Segment &s1, MyCV::Segment &s2) -> bool
+				//   { return s1.size() < s2.size(); });
+// 
+		// std::sort(redSegments.begin(), redSegments.end(), [](MyCV::Segment &s1, MyCV::Segment &s2) -> bool
+				//   { return s1.size() < s2.size(); });
 
 		// Finding logos
 
@@ -236,3 +220,9 @@ int main(int, char *[])
 }
 
 void sl::println(std::string text) { std::cout << "> " + text << std::endl; }
+
+void sortField(std::vector<std::vector<pair<int, int>>> &field)
+{
+	std::sort(field.begin(), field.end(), [](std::vector<pair<int, int>> &v1, std::vector<pair<int, int>> &v2) -> bool
+			  { return v1.size() < v2.size(); });
+}
