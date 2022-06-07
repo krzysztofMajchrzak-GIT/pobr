@@ -1,0 +1,2 @@
+Rozpoznawane będzie logo lidla: żółte koło i litery wewnątrz tego koła, czerwone I oraz niebieskie L,D,L.
+Pomijam niebieski kwadrat bo może zlewać się z tłem, a czerwona obwódka koła przy zniekształceniach może znikać (bo jest cienka).

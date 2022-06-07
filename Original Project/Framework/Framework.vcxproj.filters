@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="MyCv.cpp" />
+    <ClCompile Include="MySimpleLogger.cpp" />
+    <ClCompile Include="SegmentInfo.cpp" />
+    <ClCompile Include="Logo.cpp" />
+    <ClCompile Include="BoundingBox.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MyCv.h" />
+    <ClInclude Include="MySimpleLogger.h" />
+    <ClInclude Include="SegmentInfo.h" />
+    <ClInclude Include="BoundingBox.h" />
+    <ClInclude Include="Logo.h" />
+    <ClInclude Include="Range.h" />
+  </ItemGroup>
+</Project>
