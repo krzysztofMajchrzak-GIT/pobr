@@ -53,7 +53,7 @@ int main(int, char *[])
 
 		println("Segmentation....");
 
-		cv::Mat blueMask = MyCV::getMaskFrom3D(image2, b1, b2, b3);
+		cv::Mat blueMask = MyCV::getMaskFrom3D(image2, blue1, blue2, blue3);
 		blueMask = MyCV::erosionFilter(blueMask, 3);
 		blueMask = MyCV::dilationFilter(blueMask, 3);
 		// cv::imshow("BLuemask", blueMask);
