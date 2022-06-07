@@ -62,7 +62,7 @@ cv::Mat unsharp(cv::Mat& photo)
 
 cv::Mat bgr2hsv(cv::Mat& photo)
 {
-    int padding = 1;
+    int padding = 0;
     cv::Mat result(photo.rows, photo.cols, CV_8UC3);
 
     //cv::Mat_<cv::Vec3b> _I = photo;
@@ -186,26 +186,18 @@ cv::Mat equlize(cv::Mat& photo)
     
 }
 
-cv::Mat masking(cv::Mat& photo, std::pair<int,int>& c1, std::pair<int,int>& c2, std::pair<int,int>& c3)
+cv::Mat masking(cv::Mat& image, std::pair<int,int>& c1, std::pair<int,int>& c2, std::pair<int,int>& c3)
 {
-    int padding = 1;
-    cv::Mat_<uchar> _R(photo.rows, photo.cols);
-    //cv::Mat_<cv::Vec3b> _I = photo;
+    cv::Mat_<uchar> _R(image.rows, image.cols);
+    cv::Mat_<cv::Vec3b> _I = image;
 
-    for (int x = padding; x < photo.cols - padding; x++) 
-    { // For every column...
-		for (int y = padding; y < photo.rows - padding; y++) 
-        { // ...iterate through every row
-            if(c1.first <= photo.at<cv::Vec3b>(y, x)[0] && c1.second > photo.at<cv::Vec3b>(y, x)[0]
-            && c2.first <= photo.at<cv::Vec3b>(y, x)[1] && c2.second > photo.at<cv::Vec3b>(y, x)[1] 
-            && c3.first <= photo.at<cv::Vec3b>(y, x)[2] && c3.second > photo.at<cv::Vec3b>(y, x)[2])
-                _R(y,x) = 255;
-
-            else
-                _R(y,x) = 0;
+    for (auto x = 0; x < image.cols; x++)
+    {
+        for (auto y = 0; y < image.rows; y++)
+        {
+            _R(y, x) = (c1.first <= _I(y, x)[0] && c1.second > _I(y, x)[0]) && (c2.first <= _I(y, x)[1] && c2.second > _I(y, x)[1]) && (c3.first <= _I(y, x)[2] && c3.second > _I(y, x)[2]) ? 255 : 0;
         }
     }
-
     return _R;
 }
 
