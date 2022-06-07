@@ -96,17 +96,18 @@ cv::Mat bgr2hsv(cv::Mat& photo)
 
             // compute h
 
-            if(cmax == cmin)
+            // if(cmax == cmin)
+            if(r==g&&g==b)
                 h = 0;
             
             else if(cmax == r)
                 h = 60.0 * ((g - b) / difference);
 
             else if(cmax == g)
-                h = (60.0 * ((b - r) / difference) + 120);
+                h = 60.0 * (b - r) / difference + 120;
 
             else if(cmax == b)
-                h = (60 * ((r - g) / difference) + 240);
+                h = 60 * (r - g) / difference + 240;
 
             if (h < 0)
                 h += 360; 
